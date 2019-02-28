@@ -45,8 +45,8 @@ def process(im):
     hist[:] = 0
     dx = cv2.Sobel(im, cv2.CV_16S, 1, 0)
     dy = cv2.Sobel(im, cv2.CV_16S, 0, 1)
-    for i in range(w):
-        for j in range(h):
+    for i in range(0,w,4):
+        for j in range(0,h,4):
             stats(dx[j][i][0], dy[j][i][0])
     print(hist)
     max = 0
