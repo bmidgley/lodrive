@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # sudo apt install build-essential python3-dev python3-pip libhdf5-100 libcblas3 libatlas3-base libjasper1
-# pip3 install picamera opencv-contrib-python-headless luma.oled
+# pip3 install "picamera[array]" opencv-contrib-python-headless luma.oled
 
 import cv2
 import io
