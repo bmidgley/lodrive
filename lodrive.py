@@ -8,6 +8,7 @@ import io
 import time
 import math
 import numpy as np
+import servo
 from picamera import PiCamera
 from picamera.array import PiRGBArray
 from PIL import Image
@@ -17,10 +18,17 @@ from luma.oled.device import ssd1306
 serial = spi(device=0, port=0, gpio_DC=23, gpio_RST=24)
 device = ssd1306(serial)
 
+left_pin = 18
+right_pin = 13
+
+left = servo.Servo(left_pin, 500)
+right = servo.Servo(right_pin, 500, True)
+
 threshold = 200
 orientations = 16
 hist = np.empty([orientations], dtype=int)
 cutoffs = np.empty([orientations])
+speeds = [-1, -0.5, 0, 0.5, 1, 1, 1, 1, 1, 0.75, 0.5, 0.25, 0, -0.25, -0.5, -0.75]
 
 for i in range(orientations):
     cutoffs[i] = ((i+1)/orientations)*(2*np.pi) - np.pi
@@ -57,18 +65,35 @@ def process(im):
             max = newscore
             imax = i
     return imax, max
-    
+
+def speed_for(direction, phase, speed):
+    direction_with_phase = (direction + phase) % orientations
+    return speed * speeds[direction_with_phase] #math.cos(cutoffs[direction_with_phase])
+
+def drive(direction, speed):
+    speed = 0.1
+    m1 = speed_for(direction, 4, speed)
+    m2 = speed_for(direction, -4, speed)
+    print("driving to ", direction, speed, m1, m2)
+    left.setSpeed(m1)
+    right.setSpeed(m2)
+
 with PiCamera() as camera:
     camera.resolution = (128, 64)
     camera.start_preview()
     camera.color_effects = (128, 128)
     rawCapture = PiRGBArray(camera)
-    while True:
-        started_at = time.time()
-        camera.capture(rawCapture, format='bgr')
-        display(rawCapture.array)
-        direction, speed = process(rawCapture.array)
-        print(direction, speed)
-        rawCapture.truncate(0)
-        print(time.time() - started_at)
+    try:
+        while True:
+            started_at = time.time()
+            camera.capture(rawCapture, format='bgr')
+            display(rawCapture.array)
+            direction, speed = process(rawCapture.array)
+            drive(direction, speed)
+            rawCapture.truncate(0)
+            print(time.time() - started_at)
+    except:
+        left.stop()
+        right.stop()
+        left.stopGpio()
 
