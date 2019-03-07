@@ -71,8 +71,10 @@ def speed_for(direction, speed):
     return speed * speeds[direction_with_phase]
 
 def vis(m):
-    d = ("<", ">")[m > 0]
-    return d * int(m*100)
+    scale = 50
+    d = ("^", "v")[m > 0]
+    width = int(m*scale)
+    return((d * width) + (" " * (scale - width)))
 
 def drive(direction, speed):
     speed = 0.05
