@@ -70,11 +70,15 @@ def speed_for(direction, speed):
     direction_with_phase = direction % orientations
     return speed * speeds[direction_with_phase]
 
+def vis(m):
+    d = ("<", ">")[m > 0]
+    return d * int(m*100)
+
 def drive(direction, speed):
     speed = 0.05
     m1 = speed_for(-direction, speed)
     m2 = speed_for(direction, speed)
-    print("driving to ", direction, m1, m2)
+    print("driving to ", direction, vis(m1), " " * 20, vis(m2))
     left.setSpeed(m1)
     right.setSpeed(m2)
 
