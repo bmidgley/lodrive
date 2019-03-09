@@ -68,18 +68,18 @@ def process(im):
 
 def speed_for(direction, speed):
     direction_with_phase = direction % orientations
-    return speed * speeds[direction_with_phase]
+    return speed * math.cos(cutoffs[direction_with_phase])
 
 def vis(m):
     scale = 50
-    d = ("^", "v")[m > 0]
-    width = int(m*scale)
+    d = ("v", "^")[m > 0]
+    width = abs(int(m*scale))
     return((d * width) + (" " * (scale - width)))
 
 def drive(direction, speed):
     speed = 0.05
-    m1 = speed_for(-direction, speed)
-    m2 = speed_for(direction, speed)
+    m1 = speed_for(direction, speed)
+    m2 = speed_for(-direction, speed)
     print("driving to ", direction, vis(m1), vis(m2))
     left.setSpeed(m1)
     right.setSpeed(m2)
