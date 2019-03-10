@@ -77,8 +77,8 @@ def vis(m):
 
 def drive(direction, speed):
     speed = 0.05
-    m1 = speed_for(-direction, speed)
-    m2 = speed_for(direction, speed)
+    m1 = speed_for(direction, speed)
+    m2 = speed_for(-direction, speed)
     print("driving to ", direction, vis(m1), vis(m2))
     left.setSpeed(m1)
     right.setSpeed(m2)
