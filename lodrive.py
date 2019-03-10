@@ -28,7 +28,7 @@ threshold = 200
 orientations = 16
 hist = np.empty([orientations], dtype=int)
 cutoffs = np.empty([orientations])
-speeds = [1, 0.75, 0.5, 0.25, 0, -0.25, -0.5, -0.75, -1, -0.5, 0, 0.5, 1, 1, 1, 1]
+speeds = [1, 1, 1, 1, 1, 0.5, 0, -0.5, -1, -1, -1, -1, -1, -0.5, 0, 0.5]
 
 for i in range(orientations):
     cutoffs[i] = ((i+1)/orientations)*(2*np.pi) - np.pi
@@ -43,7 +43,6 @@ def stats(dx, dy):
         for i in range(orientations):
             if(angle <= cutoffs[i]):
                 hist[i] += 1
-                return
 
 def score(i):
     return hist[i] + hist[(i+7)%orientations]
@@ -67,8 +66,7 @@ def process(im):
     return imax, max
 
 def speed_for(direction, speed):
-    direction_with_phase = direction % orientations
-    return speed * math.cos(cutoffs[direction_with_phase])
+    return speed * speeds[direction % orientations]
 
 def vis(m):
     scale = 50
@@ -78,8 +76,8 @@ def vis(m):
 
 def drive(direction, speed):
     speed = 0.05
-    m1 = speed_for(direction, speed)
-    m2 = speed_for(-direction, speed)
+    m1 = speed_for(-direction, speed)
+    m2 = speed_for(direction, speed)
     print("driving to ", direction, vis(m1), vis(m2))
     left.setSpeed(m1)
     right.setSpeed(m2)
