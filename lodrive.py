@@ -43,6 +43,7 @@ def stats(dx, dy):
         for i in range(orientations):
             if(angle <= cutoffs[i]):
                 hist[i] += 1
+                return
 
 def score(i):
     return hist[i] + hist[(i+7)%orientations]
