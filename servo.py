@@ -3,12 +3,13 @@ import pigpio
 class Servo:
     gpio = None
 
-    def __init__(self, port, positionRange=500, invert=False):
+    def __init__(self, port, positionRange=500, positionCenter=1500, invert=False):
         if Servo.gpio is None:
             print('Creating Servo GPIO')
             Servo.gpio = pigpio.pi()
         self.port = port
         self.positionRange = positionRange
+        self.positionCenter = positionCenter
         self.speed = 0
         self.position = 1500
         self.inv = -1 if invert else 1
@@ -23,7 +24,7 @@ class Servo:
             # Set servo pulse width to adjust speed of continuous servo
             self.speed = speed
             # Safe range (1000-2000), <1500 backwards, >1500 forwards, 1500 stopped (max range of 500-2500)
-            Servo.gpio.set_servo_pulsewidth(self.port, 0 if speed == 0 else 1500 + speed*self.positionRange)
+            Servo.gpio.set_servo_pulsewidth(self.port, 0 if speed == 0 else self.positionCenter + speed*self.positionRange)
 
     # Position between -1.0 and 1.0 (used for fixed 180 degree rotation servos)
     def setPosition(self, position):

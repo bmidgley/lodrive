@@ -21,8 +21,8 @@ device = ssd1306(serial)
 left_pin = 18
 right_pin = 13
 
-left = servo.Servo(left_pin, 500)
-right = servo.Servo(right_pin, 500, True)
+left = servo.Servo(left_pin)
+right = servo.Servo(right_pin, invert=True, positionCenter=1450)
 
 threshold = 200
 orientations = 16
@@ -76,7 +76,7 @@ def vis(m):
     return((d * width) + (" " * (scale - width)))
 
 def drive(direction, speed):
-    speed = 0.05
+    speed = 0.1
     m1 = speed_for(direction, speed)
     m2 = speed_for(-direction, speed)
     print("driving to ", direction, vis(m1), vis(m2))
