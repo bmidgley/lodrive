@@ -15,3 +15,5 @@ The LCD is wired up:
 * D0 to pin 23
 * VCC to 5v pin 2
 * GND to gnd pin 6
+
+Run pigpiod in the background before running lodrive.py
