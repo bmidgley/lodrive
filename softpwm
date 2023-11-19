@@ -1,0 +1,80 @@
+diff --git a/lodrive.py b/lodrive.py
+index aa3eaf5..64460f2 100755
+--- a/lodrive.py
++++ b/lodrive.py
+@@ -8,6 +8,7 @@ import io
+ import time
+ import math
+ import numpy as np
++import RPi.GPIO as GPIO
+ from picamera import PiCamera
+ from picamera.array import PiRGBArray
+ from PIL import Image
+@@ -17,10 +18,21 @@ from luma.oled.device import ssd1306
+ serial = spi(device=0, port=0, gpio_DC=23, gpio_RST=24)
+ device = ssd1306(serial)
+ 
++GPIO.setmode(GPIO.BCM)
++GPIO.setup(18, GPIO.OUT)
++GPIO.setup(13, GPIO.OUT)
++
++servo1 = GPIO.PWM(18,500)
++servo2 = GPIO.PWM(13,500)
++
++servo1.start(0)
++servo2.start(0)
++
+ threshold = 200
+ orientations = 16
+ hist = np.empty([orientations], dtype=int)
+ cutoffs = np.empty([orientations])
++speeds = [-1, -0.5, 0, 0.5, 1, 1, 1, 1, 1, 0.75, 0.5, 0.25, 0, -0.25, -0.5, -0.75]
+ 
+ for i in range(orientations):
+     cutoffs[i] = ((i+1)/orientations)*(2*np.pi) - np.pi
+@@ -57,18 +69,37 @@ def process(im):
+             max = newscore
+             imax = i
+     return imax, max
++
++def speed_for(direction, phase, speed):
++    direction_with_phase = (direction + phase) % orientations
++    return 50 * speed * math.cos(cutoffs[direction_with_phase])
++    
++def drive(direction, speed):
++    speed = 0.01
++    print(direction, speed)
++    m1 = 50 - speed_for(direction, 4, speed)
++    m2 = 50 + speed_for(direction, -4, speed)
++    print("driving to ", m1, m2)
++    servo1.ChangeDutyCycle(m1)
++    servo2.ChangeDutyCycle(m2)
+     
+ with PiCamera() as camera:
+     camera.resolution = (128, 64)
+     camera.start_preview()
+     camera.color_effects = (128, 128)
+     rawCapture = PiRGBArray(camera)
+-    while True:
+-        started_at = time.time()
+-        camera.capture(rawCapture, format='bgr')
+-        display(rawCapture.array)
+-        direction, speed = process(rawCapture.array)
+-        print(direction, speed)
+-        rawCapture.truncate(0)
+-        print(time.time() - started_at)
++    try:
++        while True:
++            started_at = time.time()
++            camera.capture(rawCapture, format='bgr')
++            display(rawCapture.array)
++            direction, speed = process(rawCapture.array)
++            drive(direction, speed)
++            rawCapture.truncate(0)
++            print(time.time() - started_at)
++    except KeyboardInterrupt:
++        pass
++    servo1.stop()
++    servo2.stop()
++    GPIO.cleanup()
+ 
