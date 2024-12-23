@@ -17,3 +17,5 @@ The LCD is wired up:
 * GND to gnd pin 6
 
 Run pigpiod in the background before running lodrive.py
+
+python3 -m pip install RPi.GPIO
